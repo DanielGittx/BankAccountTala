@@ -17,17 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import bankacounttalaid.bankaccounttala.Models.Account;
-import bankacounttalaid.bankaccounttala.Utils.DateEvaluation;
-import static com.sun.org.apache.xalan.internal.lib.ExsltDatetime.date;
+import bankacounttalaid.bankaccounttala.Utils.AccountRegulations;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.json.JSONObject;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,20 +35,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 @RestController
 public class BankAccountController {
-       
-        public static int MaxDepositAmount = 150000;
-        public static int MaxDepositPerTransaction = 40000;
-        public static int MaxDepositFrequency = 4;
-        public int numberOfDeposits = 0;
-        
-       // public  double t0 = System.currentTimeMillis(); //Variable "t0" stores the initial time when the application was just opened
+
         @RequestMapping(value="/Balance",method = RequestMethod.GET)            //Endpoint - 
         public String account_Balance( @RequestParam(value="accountNumber") int accountNumber){
             
                 Account transaction = new Account(); //create Account Object
-                try{
+                   try{
                        return "Your Balance is $ "+transaction.getBalance(accountNumber)+"";
-                }catch (SQLException sq)
+
+                }catch ( SQLException ex)           //SQLException
                         {
                             return "Sorry, unable to get balance: ";
                         }
@@ -66,14 +52,24 @@ public class BankAccountController {
         @RequestMapping(value="/Deposit",method = RequestMethod.GET)              //Endpoint - 
          public String account_Deposit( @RequestParam(value="accountNumber") int accountNumber,
                                         @RequestParam(value="depositAmount") double depositAmount){
-                  
-                Account transaction = new Account(); //create Account Object
+             
+                AccountRegulations regulations = new AccountRegulations();    //create Object
+                Account transaction = new Account();                         //create Account Object
                 try{
-                     transaction.deposit(depositAmount, accountNumber);
-                     return "You have credited $ "+depositAmount+" to your account"; 
+                 
+                      if(regulations.DepositRules_frequency())        // Rule breached!
+                         return "Sorry, Exceeded maximum daily deposits";
+                      if(regulations.DepositRules_maxDepositPerTransaction(depositAmount)) //Rule Breached!
+                         return "Sorry, Deposit amount exceeds maximum allowed for single transaction";
+                      if(regulations.DepositRules_maxDepositPerDay(depositAmount)) //Rule Breached!
+                         return "Sorry, Deposit amount exceeds maximum allowed in a day";
+                      
+                    transaction.deposit(depositAmount, accountNumber);   
+                    return "You have credited $ "+depositAmount+" to your account"; 
                      
                 }catch (SQLException sq)
                     {
+                       System.out.println(sq);       //Log Database Exception
                        return "Sorry, unable to deposit, please try again";
                     }
            }
@@ -82,14 +78,24 @@ public class BankAccountController {
          public String account_Withdrawal(@RequestParam(value="accountNumber") int accountNumber,
                                           @RequestParam(value="withdrawalAmount") double withdrawalAmount){
              
-              Account transaction = new Account(); //create Account Object
+                AccountRegulations regulations = new AccountRegulations();     //create  Object
+                Account transaction = new Account();                           //create  Object 
               
               try{
-                    transaction.withdraw(withdrawalAmount, accountNumber);
-                    return "You have withdrawn $ "+withdrawalAmount+" from your account";
+                 
+                      if(regulations.WithdrawalRules_frequency())        // Rule breached!
+                         return "Sorry, Exceeded maximum daily withdrawals";
+                      if(regulations.WithdrawalRules_maxWithdrawalPerTransaction(withdrawalAmount)) //Rule Breached!
+                         return "Sorry, Withdrawal amount exceeds maximum allowed for single transaction";
+                      if(regulations.WithdrawalRules_maxWithdrawalPerDay(withdrawalAmount)) //Rule Breached!
+                         return "Sorry, Withdrawal amount exceeds maximum allowed in a day";
+                      
+                    transaction.deposit(withdrawalAmount, accountNumber);   
+                    return "You have withdrawn $ "+withdrawalAmount+" from your account"; 
                     
               }catch (SQLException sq)
               {
+                  System.out.println(sq);     //Log Database Exception
                   return "Sorry, unable to withdraw, please try again";
               }
 

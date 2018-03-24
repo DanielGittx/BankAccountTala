@@ -32,7 +32,7 @@ public class Account {
     }
     
     public double getBalance (int accountNumber) throws SQLException{
-        balance = db.GetTotalDeposits(conn, accountNumber) - db.GetTotalWithDrawals(conn, accountNumber);;
+        balance = db.GetTotalDeposits(conn, accountNumber) - db.GetTotalWithDrawals(conn, accountNumber);
      
        return balance;
        
