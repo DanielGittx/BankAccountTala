@@ -20,7 +20,7 @@ public class Account {
 
     public Account ()
     {
-       balance = 0.0; 
+       this.balance = 0.0; 
     }
     
     public void deposit(double depositAmount, int accountNumber) throws SQLException{
@@ -32,9 +32,8 @@ public class Account {
     }
     
     public double getBalance (int accountNumber) throws SQLException{
-        balance = db.GetTotalDeposits(conn, accountNumber) - db.GetTotalWithDrawals(conn, accountNumber);
-     
-       return balance;
+        this.balance = db.GetTotalDeposits(conn, accountNumber) - db.GetTotalWithDrawals(conn, accountNumber);
+        return balance;
        
     }
     

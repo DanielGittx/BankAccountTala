@@ -5,11 +5,25 @@
  */
 package bankacounttalaid.bankaccounttala.Utils;
 
+
+/******************************************************************************
+* Class: AccountRegulations 
+* Methods:  DepositRules_frequency, DepositRules_maxDepositPerDay, DepositRules_maxDepositPerTransaction
+*           WithdrawalRules_frequency,  WithdrawalRules_maxWithdrawalPerDay, WithdrawalRules_maxWithdrawalPerTransaction, WithdrawalRules_WithdrawingMoreThanBalance
+* Overview - Inherits members to, t1 from BankAccount class to help determination of time since application launch
+****************************************************************************/
+
+
+
+import bankacounttalaid.bankaccounttala.Controllers.BankAccountMain;
+import bankacounttalaid.bankaccounttala.Models.Account;
+import java.sql.SQLException;
+
 /**
  *
  * @author danial
  */
-public class AccountRegulations {
+public class AccountRegulations extends BankAccountMain {          
     
      //members init
     
@@ -42,10 +56,22 @@ public class AccountRegulations {
         
     }
     
-    /////////////////////Deposit Rules /////////////////////////////////////////
+/******************************************************************************
+* The methods below (deposits and withdrawala) return boolean value
+* True - Breach of Account Rule has occured
+* False - Happy state :)
+*****************************************************************************/
+    
+//////////////////////////////deposit rules///////////////////////////////////////////
     public boolean DepositRules_frequency( )
     {
-       return (next_DepositCounter > 4);  //Regulation breached 
+        while(true) {
+        if((t1 = System.currentTimeMillis()) - t0 >= 1000 * 60 * 60 * 24) {
+        next_DepositCounter = 0;      // unlock deposits after 24 hours
+        t0 = t1;
+        }
+         return (next_DepositCounter > 4);  //Regulation breached (return True)
+      }
     }
     
    public boolean DepositRules_maxDepositPerDay(double _depositAmount )
@@ -60,10 +86,16 @@ public class AccountRegulations {
        /////////////////////Withdrawal Rules ///////////////////////////////////////// 
     public boolean WithdrawalRules_frequency( )
     {
-       return (next_WithdrawalCounter > 3);  //Regulation breached 
+        while(true) {
+        if((t1 = System.currentTimeMillis()) - t0 >= 1000 * 60 * 60 * 24) {     //
+        next_DepositCounter = 0;      // Unlock withdrawals after 24Hours
+        t0 = t1;
+        }
+          return (next_WithdrawalCounter > 3);  //Regulation breached 
+      }
     }
     
-   public boolean WithdrawalRules_maxWithdrawalPerDay(double _withdrawalAmount )
+   public boolean WithdrawalRules_maxWithdrawalPerDay(double _withdrawalAmount )    
     {
         return (_withdrawalAmount > maxWithdrawalAmountPerDay );  //Regulation breached 
     }
@@ -71,6 +103,10 @@ public class AccountRegulations {
     {
         return(_withdrawalAmount > maxWithdrawalPerTransaction );  //Regulation breached 
     }
-
-    
+    public boolean WithdrawalRules_WithdrawingMoreThanBalance(double _withdrawalAmount, int accountNumber )throws SQLException
+    {
+        Account transaction = new Account();
+        return(_withdrawalAmount >  transaction.getBalance(accountNumber) );  //Regulation breached 
+    }
+   
 }

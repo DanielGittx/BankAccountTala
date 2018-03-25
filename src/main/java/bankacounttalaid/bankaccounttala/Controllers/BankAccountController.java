@@ -22,38 +22,32 @@ import java.sql.SQLException;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
+
 
 
 /******************************************************************************
 * Class: BankAccountController 
-* Input: 
-* Output:
+* Methods: account_Balance, account_Deposit, account_Withdrawal
+* RequestMapping: Balance, Deposit and Withdrawal callbacks handled by above methods respectively
+* Output: String message status
 * Side Effects:
-* Overview:
+* Overview: Has a nested class (ServletConfig class) that sets custom port during runtime 
+*           The methods in this class also check ensures banks regulations before making transaction.
 *****************************************************************************/
 
 @RestController
 public class BankAccountController {
-
+    
         @RequestMapping(value="/Balance",method = RequestMethod.GET)            //Endpoint - 
         public String account_Balance( @RequestParam(value="accountNumber") int accountNumber){
-            //if (accountNumber < 0)
-                  //throw new StudentNotFoundException("Bad Account" + accountNumber);
-   
-               
- Account transaction = new Account(); //create Account Object
-            
-                            try{
-                      //return "Your Balance is $ "+transaction.getBalance(accountNumber)+"";
-                         return "Your balance is...";
-
-                }catch ( Exception ex)           //SQLException
-                        {
-                            return "Sorry, unable to get balance: ";
-                        }
+                 Account transaction = new Account(); //create Account Object
+                   try{
+                           return "Your Balance is $ "+transaction.getBalance(accountNumber)+""; 
+                      }catch ( SQLException ex)           //SQLException
+                      {
+                            return "Sorry, unable to get balance: "+ex+"";
+                      }
          }
 
         @RequestMapping(value="/Deposit",method = RequestMethod.GET)              //Endpoint - 
@@ -71,13 +65,14 @@ public class BankAccountController {
                       if(regulations.DepositRules_maxDepositPerDay(depositAmount)) //Rule Breached!
                          return "Sorry, Deposit amount exceeds maximum allowed in a day";
                       
-                    transaction.deposit(depositAmount, accountNumber);   
+                    //transaction.deposit(depositAmount, accountNumber);   
+                   
                     return "You have credited $ "+depositAmount+" to your account"; 
                      
-                }catch (SQLException sq)
+                }catch (Exception sq)
                     {
                        System.out.println(sq);       //Log Database Exception
-                       return "Sorry, unable to deposit, please try again";
+                       return "Sorry, unable to deposit, please try again "+sq+"";
                     }
            }
          
@@ -89,13 +84,15 @@ public class BankAccountController {
                 Account transaction = new Account();                           //create  Object 
               
               try{
-                 
+                      
                       if(regulations.WithdrawalRules_frequency())        // Rule breached!
                          return "Sorry, Exceeded maximum daily withdrawals";
                       if(regulations.WithdrawalRules_maxWithdrawalPerTransaction(withdrawalAmount)) //Rule Breached!
                          return "Sorry, Withdrawal amount exceeds maximum allowed for single transaction";
                       if(regulations.WithdrawalRules_maxWithdrawalPerDay(withdrawalAmount)) //Rule Breached!
                          return "Sorry, Withdrawal amount exceeds maximum allowed in a day";
+                      if (regulations.WithdrawalRules_WithdrawingMoreThanBalance(withdrawalAmount, accountNumber))
+                          return "Sorry, Withdrawal greater than your account balance";
                       
                     transaction.deposit(withdrawalAmount, accountNumber);   
                     return "You have withdrawn $ "+withdrawalAmount+" from your account"; 
@@ -103,18 +100,19 @@ public class BankAccountController {
               }catch (SQLException sq)
               {
                   System.out.println(sq);     //Log Database Exception
-                  return "Sorry, unable to withdraw, please try again";
+                  return "Sorry, unable to withdraw, please try again "+sq+"";
               }
 
          }
-              
+        // Sets custom port number on runtime
+        // This is to move away from default 8080 set by embedded Tomcat
 
    @Configuration
    public class ServletConfig {
     @Bean
     public EmbeddedServletContainerCustomizer containerCustomizer() {
         return (container -> {
-            container.setPort(8012);          //Set port on runtime
+            container.setPort(8012);        
         });
     }
  }

@@ -20,7 +20,7 @@ public class CustomErrorController implements ErrorController {
 
     @RequestMapping(value = PATH)
     public String error() {
-        return "Bad Account Number";
+        return "Something went wrong! please ensure you have supplied all parameters required on url correctly ";
     }
 
     @Override

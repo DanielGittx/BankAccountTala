@@ -12,10 +12,17 @@ package bankacounttalaid.bankaccounttala.Controllers;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// Base package
+/******************************************************************************
+* Class: BankAccountMain 
+* Methods:  main
+* This is the base package and the service starts here
+*****************************************************************************/
+
 
 @SpringBootApplication
 public class BankAccountMain {
+    
+     public double t0 = System.currentTimeMillis(), t1;
 
     /**
      * @param args the command line arguments

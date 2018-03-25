@@ -5,6 +5,13 @@
  */
 package bankacounttalaid.bankaccounttala.DataAccess;
 
+
+/******************************************************************************
+* Class:- databaseAccess 
+* Methods:- getRemoteConnection, insertDeposits, insertWithdrawals, GetTotalDeposits, GetTotalWithdrawals
+* Overview:- get database connections and perform database operations
+*****************************************************************************/
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
