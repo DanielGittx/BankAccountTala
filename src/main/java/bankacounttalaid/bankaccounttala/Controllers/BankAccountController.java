@@ -22,7 +22,9 @@ import java.sql.SQLException;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 /******************************************************************************
@@ -38,12 +40,17 @@ public class BankAccountController {
 
         @RequestMapping(value="/Balance",method = RequestMethod.GET)            //Endpoint - 
         public String account_Balance( @RequestParam(value="accountNumber") int accountNumber){
+            //if (accountNumber < 0)
+                  //throw new StudentNotFoundException("Bad Account" + accountNumber);
+   
+               
+ Account transaction = new Account(); //create Account Object
             
-                Account transaction = new Account(); //create Account Object
-                   try{
-                       return "Your Balance is $ "+transaction.getBalance(accountNumber)+"";
+                            try{
+                      //return "Your Balance is $ "+transaction.getBalance(accountNumber)+"";
+                         return "Your balance is...";
 
-                }catch ( SQLException ex)           //SQLException
+                }catch ( Exception ex)           //SQLException
                         {
                             return "Sorry, unable to get balance: ";
                         }
