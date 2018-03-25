@@ -65,11 +65,11 @@ public class BankAccountController {
                       if(regulations.DepositRules_maxDepositPerDay(depositAmount)) //Rule Breached!
                          return "Sorry, Deposit amount exceeds maximum allowed in a day";
                       
-                    //transaction.deposit(depositAmount, accountNumber);   
+                    transaction.deposit(depositAmount, accountNumber);   
                    
                     return "You have credited $ "+depositAmount+" to your account"; 
                      
-                }catch (Exception sq)
+                }catch (SQLException sq)
                     {
                        System.out.println(sq);       //Log Database Exception
                        return "Sorry, unable to deposit, please try again "+sq+"";
